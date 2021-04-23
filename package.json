@@ -1,0 +1,20 @@
+{
+  "name": "pepe-coin",
+  "version": "1.0.0",
+  "description": "Pepe coin - Blockchain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "blockchain"
+  ],
+  "author": "maihuythong",
+  "license": "ISC",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "es6-error": "^4.1.1",
+    "fs-extra": "^10.0.0",
+    "ramda": "^0.27.1"
+  }
+}
