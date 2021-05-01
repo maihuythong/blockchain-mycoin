@@ -12,6 +12,7 @@
   "author": "maihuythong",
   "license": "ISC",
   "dependencies": {
+    "cli-color": "^2.0.0",
     "crypto": "^1.0.1",
     "elliptic": "^6.5.4",
     "es6-error": "^4.1.1",

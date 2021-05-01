@@ -6,7 +6,7 @@ const { hash } = require('../util/crytoUtil');
 class Block {
 
   toHash() {
-    return hash(this.index + this.previousHash + this.timestamp + JSON.stringify(this.transactions))
+    return hash(this.index + this.previousHash + this.timestamp + JSON.stringify(this.transactions) + this.nonce)
   }
 
   static get genesis() {
@@ -25,6 +25,11 @@ class Block {
 
     block.hash = block.toHash();
     return block;
+  }
+
+  getDifficulty() {
+    // 14 is the maximum precision length supported by javascript
+    return parseInt(this.hash.substring(0, 14), 16);
   }
 }
 

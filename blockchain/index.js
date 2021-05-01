@@ -81,6 +81,9 @@ class Blockchain {
     } else if (blockHash !== newBlock.hash) {
       console.log(`Invalid hash: expected '${blockHash}' got '${newBlock.hash}'`);
       throw new BlockException(`Invalid hash: expected '${blockHash}' got '${newBlock.hash}'`);
+    } else if (newBlock.getDifficulty() >= this.getDifficulty(newBlock.index)) { // If the difficulty level of the proof-of-work challenge is correct
+      console.error(`Invalid proof-of-work difficulty: expected '${newBlock.getDifficulty()}' to be smaller than '${this.getDifficulty(newBlock.index)}'`);
+      throw new BlockException(`Invalid proof-of-work difficulty: expected '${newBlock.getDifficulty()}' be smaller than '${this.getDifficulty()}'`);
     }
 
     // check transaction is valid per block
@@ -156,6 +159,11 @@ class Blockchain {
     }
 
     return true;
+  }
+
+  getDifficulty(index) {
+    // Calculates the difficulty based on the index since the difficulty value increases every X blocks.
+    return config.pow.getDifficulty(this.blocks, index);
   }
 }
 

@@ -17,4 +17,17 @@ module.exports = {
   },
 
   FEE_PER_TRANSACTION: 1,
+
+  MINING_REWARD: 5000000000,
+
+  pow: {
+    getDifficulty: (blocks, index) => {
+      // POW difficulty settings
+      const BASE_DIFFICULTY = Number.MAX_SAFE_INTEGER;
+      const EVERY_X_BLOCKS = 5;
+      const POW_CURVE = 5;
+
+      return Math.max(Math.floor(BASE_DIFFICULTY / Math.pow(Math.floor(((index || blocks.length) + 1) / EVERY_X_BLOCKS) + 1, POW_CURVE)), 0);
+    }
+  }
 }
