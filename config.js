@@ -13,7 +13,8 @@ module.exports = {
           outputs: []
         }
       }
-    ]
+    ],
+    nonce: 0
   },
 
   FEE_PER_TRANSACTION: 1,

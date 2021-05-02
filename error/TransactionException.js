@@ -1,4 +1,4 @@
-const ExtendedError = require('../util/extendedError');
+const ExtendedError = require('./extendedError');
 
 class TransactionException extends ExtendedError { }
 
