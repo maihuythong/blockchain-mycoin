@@ -1,4 +1,5 @@
 const R = require('ramda');
+const EventEmitter = require('events');
 const Block = require('./block');
 const Blocks = require('./blocks');
 const Database = require('../Database/database');
@@ -20,6 +21,8 @@ class Blockchain {
     this.blocks = this.blocksDB.read(Blocks);
     this.transactions = this.transactionsDB.read(Transactions);
 
+    // Some places uses the emitter to act after some data is changed
+    this.emitter = new EventEmitter();
     this.init();
   }
 
@@ -53,16 +56,20 @@ class Blockchain {
     return this.blocks.find(x => x.hash === hash);
   }
 
-  addBlock(newBlock) {
+  addBlock(newBlock, emit = true) {
     if (this.checkBlock(newBlock, this.getLastBlock())) {
       this.blocks.push(newBlock);
       this.blocksDB.write(this.blocks);
+
+      console.info(`Block added: ${newBlock.hash}`);
+      console.debug(`Block added: ${JSON.stringify(newBlock)}`);
+      if (emit) this.emitter.emit('blockAdded', newBlock);
 
       return newBlock;
     }
   }
 
-  checkBlock(newBlock, previousBlock) {
+  checkBlock(newBlock, previousBlock, referenceBlockchain = this.blocks) {
     const blockHash = newBlock.toHash();
 
     /**
@@ -118,6 +125,10 @@ class Blockchain {
     }
 
     return true;
+  }
+
+  getAllTransactions() {
+    return this.transactions;
   }
 
   removeBlockTransactionsFromTransactions(newBlock) {
