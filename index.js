@@ -1,14 +1,26 @@
-// const Blockchain = require('./blockchain');
+const HttpServer = require('./server/index');
+const Blockchain = require('./blockchain');
+const Operator = require('./operator');
+const Miner = require('./miner');
+const Node = require('./node');
 
+module.exports = function pepecoin(host, port, peers, logLevel, name) {
+  host = process.env.HOST || host || 'localhost';
+  port = process.env.PORT || process.env.HTTP_PORT || port || 3001;
+  peers = (process.env.PEERS ? process.env.PEERS.split(',') : peers || []);
+  peers = peers.map((peer) => { return { url: peer }; });
+  logLevel = (process.env.LOG_LEVEL ? process.env.LOG_LEVEL : logLevel || 6);
+  name = process.env.NAME || name || '1';
 
-// let blockchain = new Blockchain();
-// console.log(blockchain.getAllBlocks());
+  require('./util/consoleWrapper.js')(name, logLevel);
 
-// blockchain.getAllBlocks();
+  console.info(`Starting node ${name}`);
 
+  let blockchain = new Blockchain(name);
+  let operator = new Operator(name, blockchain);
+  let miner = new Miner(blockchain, logLevel);
+  let node = new Node(host, port, peers, blockchain);
+  let httpServer = new HttpServer(node, blockchain, operator, miner);
 
-const BASE_DIFFICULTY = Number.MAX_SAFE_INTEGER;
-const EVERY_X_BLOCKS = 5;
-const POW_CURVE = 5;
-
-console.log(Math.max(Math.floor(BASE_DIFFICULTY / Math.pow(Math.floor(((1 || 2) + 1) / EVERY_X_BLOCKS) + 1, POW_CURVE)), 0));
+  httpServer.listen(host, port);
+};
