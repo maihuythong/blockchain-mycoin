@@ -4,8 +4,7 @@
   "description": "Pepe coin - Blockchain",
   "main": "index.js",
   "scripts": {
-    "start": "node bin/pepecoin.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node bin/pepecoin.js"
   },
   "keywords": [
     "blockchain"
@@ -15,6 +14,8 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "cli-color": "^2.0.0",
+    "core-js": "^2.6.12",
+    "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "elliptic": "^6.5.4",
     "es6-error": "^4.1.1",

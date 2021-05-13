@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const R = require('ramda');
 const Block = require('../blockchain/block');
 const Transaction = require('../blockchain/transaction');
@@ -9,10 +10,12 @@ const HTTPError = require('../error/httpError');
 const ArgumentException = require('../error/ArgumentException');
 const { hash } = require('../util/crytoUtil');
 const timeago = require('timeago.js');
+const cors = require('cors');
 
 class HttpServer {
   constructor(node, blockchain, operator, miner) {
     this.app = express();
+    this.app.use(cors());
 
     const projectWallet = (wallet) => {
       return {
@@ -27,6 +30,7 @@ class HttpServer {
 
     // this.app.set('view engine', 'pug');
     // this.app.set('views', path.join(__dirname, 'views'));
+
     this.app.locals.formatters = {
       time: (rawTime) => {
         const timeInMS = new Date(rawTime * 1000);
@@ -165,7 +169,7 @@ class HttpServer {
 
     this.app.post('/operator/wallets/:walletId/addresses', (req, res) => {
       let walletId = req.params.walletId;
-      let password = req.headers.password;
+      let password = req.body.password;
 
       if (password == null) throw new HTTPError(401, 'Wallet\'s password is missing.');
       let passwordHash = hash(password);
@@ -226,6 +230,10 @@ class HttpServer {
       if (err instanceof HTTPError) res.status(err.status);
       else res.status(500);
       res.send(err.message + (err.cause ? ' - ' + err.cause.message : ''));
+    });
+
+    this.app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, 'walletUI/dist/index.html'));
     });
   }
 
