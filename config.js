@@ -19,7 +19,7 @@ module.exports = {
 
   FEE_PER_TRANSACTION: 1,
 
-  MINING_REWARD: 5000000000,
+  MINING_REWARD: 1000,
 
   pow: {
     getDifficulty: (blocks, index) => {

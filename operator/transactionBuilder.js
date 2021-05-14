@@ -89,6 +89,7 @@ class TransactionBuilder {
 
     return Transaction.fromJson({
       id: randomId(64),
+      time: Date.now(),
       hash: null,
       type: this.type,
       data: {

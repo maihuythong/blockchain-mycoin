@@ -97,7 +97,7 @@ class HttpServer {
         let newTransaction = blockchain.addTransaction(requestTransaction);
         res.status(201).send(newTransaction);
       } catch (ex) {
-        if (ex instanceof TransactionException) throw new HTTPError(400, ex.message, requestTransaction, ex);
+        if (ex instanceof TransactionException) res.status(400).json({ message: ex.message });
         else throw ex;
       }
     });
@@ -134,9 +134,16 @@ class HttpServer {
       res.status(200).send(projectedWallet);
     });
 
+    this.app.post('/operator/wallet/login', (req, res) => {
+      let passwordHash = hash(req.body.password);
+      let isValid = operator.checkWalletPassword(req.body.walletId, passwordHash);
+      if (!isValid) res.status(401).json({ message: "Incorrect password!" });
+      res.status(201).json({ message: "OK" });
+    });
+
     this.app.post('/operator/wallets/:walletId/transactions', (req, res) => {
       let walletId = req.params.walletId;
-      let password = req.headers.password;
+      let password = req.body.password;
 
       if (password == null) throw new HTTPError(401, 'Wallet\'s password is missing.');
       let passwordHash = hash(password);
@@ -151,12 +158,14 @@ class HttpServer {
         let transactionCreated = blockchain.addTransaction(Transaction.fromJson(newTransaction));
         res.status(201).send(transactionCreated);
       } catch (ex) {
-        if (ex instanceof ArgumentException || ex instanceof TransactionException) throw new HTTPError(400, ex.message, walletId, ex);
+        if (ex instanceof ArgumentException || ex instanceof TransactionException) {
+          res.status(209).json({ message: ex.message });
+        }
         else throw ex;
       }
     });
 
-    this.app.get('/operator/wallets/:walletId/addresses', (req, res) => {
+    this.app.get('/operator/wallets/:walletId/address', (req, res) => {
       let walletId = req.params.walletId;
       try {
         let addresses = operator.getAddressesForWallet(walletId);
@@ -167,7 +176,7 @@ class HttpServer {
       }
     });
 
-    this.app.post('/operator/wallets/:walletId/addresses', (req, res) => {
+    this.app.post('/operator/wallets/:walletId/address', (req, res) => {
       let walletId = req.params.walletId;
       let password = req.body.password;
 
@@ -176,7 +185,8 @@ class HttpServer {
 
       try {
         if (!operator.checkWalletPassword(walletId, passwordHash)) throw new HTTPError(403, `Invalid password for wallet '${walletId}'`);
-
+        let addresses = operator.getAddressesForWallet(walletId);
+        if (addresses.length >= 1) throw new HTTPError(400, `${walletId} was existed address`);
         let newAddress = operator.generateAddressForWallet(walletId);
         res.status(201).send({ address: newAddress });
       } catch (ex) {
@@ -226,14 +236,10 @@ class HttpServer {
         });
     });
 
-    this.app.use(function (err, req, res, next) {  // eslint-disable-line no-unused-vars
+    this.app.use(function (err, req, res, next) {
       if (err instanceof HTTPError) res.status(err.status);
       else res.status(500);
       res.send(err.message + (err.cause ? ' - ' + err.cause.message : ''));
-    });
-
-    this.app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, 'walletUI/dist/index.html'));
     });
   }
 
