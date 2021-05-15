@@ -149,8 +149,12 @@ class HttpServer {
       let passwordHash = hash(password);
 
       try {
-        if (!operator.checkWalletPassword(walletId, passwordHash)) throw new HTTPError(403, `Invalid password for wallet '${walletId}'`);
+        if (!operator.checkWalletPassword(walletId, passwordHash)) {
+          res.status(202).json({ status: 202, message: `Invalid password for wallet '${walletId}'` });
+          return res;
+        }
 
+        console.log('still');
         let newTransaction = operator.createTransaction(walletId, req.body.fromAddress, req.body.toAddress, req.body.amount, req.body['changeAddress'] || req.body.fromAddress);
 
         newTransaction.check();
@@ -159,7 +163,9 @@ class HttpServer {
         res.status(201).send(transactionCreated);
       } catch (ex) {
         if (ex instanceof ArgumentException || ex instanceof TransactionException) {
-          res.status(209).json({ message: ex.message });
+          if (ex instanceof ArgumentException) {
+            res.status(200).send({ status: 202, message: ex.message });
+          }
         }
         else throw ex;
       }
