@@ -229,6 +229,7 @@ class HttpServer {
         });
     });
 
+    // disable api when use for wallet
     this.app.post('/miner/mine', (req, res, next) => {
       miner.mine(req.body.rewardAddress, req.body['feeAddress'] || req.body.rewardAddress)
         .then((newBlock) => {
